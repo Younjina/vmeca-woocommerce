@@ -1,1 +1,0 @@
-# vmeca-woocommerce
