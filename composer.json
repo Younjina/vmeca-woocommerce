@@ -1,0 +1,36 @@
+{
+  "name": "ivy/vmeca-woocommerce",
+  "description": "VMECA 우커머스 커스터마이징",
+  "version": "0.0.1",
+  "type": "wordpress-plugin",
+  "authors": [
+    {
+      "name": "boram",
+      "email": "boram@ivynet.co.kr"
+    }
+  ],
+  "keywords": [
+    "boram",
+    "wordpress",
+    "plugin",
+    "vmeca",
+    "vacuum",
+    "commerce"
+  ],
+  "require": {
+  },
+  "autoload": {
+    "psr-4": {
+      "Ivy\\Vmeca\\": [
+        "src/"
+      ]
+    },
+    "files": [
+      "src/Functions/Idioms.php",
+      "src/Functions/Startup.php",
+      "src/Functions/ItemAjax.php",
+      "src/Functions/AppliedAjax.php",
+      "src/Functions/VmecaFunctions.php"
+    ]
+  }
+}
