@@ -5,7 +5,9 @@ namespace Ivy\Vmeca\Initiators\Board;
 use Ivy\Mu\Initiators\AutoHookInitiator;
 use function Ivy\Mu\Functions\selectTag;
 use function Ivy\Vmeca\Functions\getMetafieldSuctionCup;
-use function Ivy\Vmeca\Functions\matchSlugFunctionName; //action or filter or shortcode 등을 자동호출해줌
+use function Ivy\Vmeca\Functions\matchSlugFunctionName;
+
+//action or filter or shortcode 등을 자동호출해줌
 
 //상품 사용자 페이지 
 class BoardProductInitiator extends AutoHookInitiator
@@ -59,8 +61,17 @@ class BoardProductInitiator extends AutoHookInitiator
           <tbody>
           <?php
           $parent_id    = get_term(get_queried_object_id())->parent; //카테고리 아이디에 해당되는 슬러그
-          $get_parent   = get_term($parent_id)->slug;
-          $functionName = matchSlugFunctionName($get_parent); //슬러그에 해당되는 메타필드 함수 명
+
+          $get_parent = get_term($parent_id);
+          $slug       = $get_parent->slug;// 상위 부모 슬러그(1단계)
+          $parents_id = $get_parent->parent; // 최상위 부모 정보(2단계이상)
+
+          $functionName = matchSlugFunctionName($slug); //슬러그에 해당되는 메타필드 함수 명
+
+          if ($parents_id != 0 && $parents_id) {
+              $parents      = get_term($parents_id)->slug;
+              $functionName = matchSlugFunctionName($parents);
+          }
 
           $metafieldNameFunc = '\\Ivy\\Vmeca\\Functions\\getMetafieldName' . $functionName;
           $metafieldFunc     = '\\Ivy\\Vmeca\\Functions\\getMetafield' . $functionName;
@@ -92,7 +103,8 @@ class BoardProductInitiator extends AutoHookInitiator
                   if (strpos($optionValue, 'kPa') || $key == 'vacuum_level') {
                       $optionValue = explode('x', $optionValue);
                       $optionValue = implode('x', $optionValue) . 'kPa';
-                  } elseif (strpos($optionValue, 'mm') || $key == 'cup_diameter') {
+                  }
+                  if (strpos($optionValue, 'mm') || $key == 'cup_diameter') {
                       $optionValue = explode('x', $optionValue);
                       $optionValue = array_map('\\Ivy\\Vmeca\\Functions\\mmToinch', $optionValue);
                       $optionValue = implode('x', $optionValue) . $mm;
@@ -154,8 +166,18 @@ class BoardProductInitiator extends AutoHookInitiator
         if ($query->is_main_query()) :
 
             $parent_id    = get_term(get_queried_object_id())->parent; //카테고리 아이디에 해당되는 슬러그
-            $get_parent   = get_term($parent_id)->slug;
-            $functionName = matchSlugFunctionName($get_parent); //슬러그에 해당되는 메타필드 함수 명
+
+            $get_parent = get_term($parent_id);
+            $slug       = $get_parent->slug;// 상위 부모 슬러그(1단계)
+            $parents_id = $get_parent->parent; // 최상위 부모 정보(2단계이상)
+
+            $functionName = matchSlugFunctionName($slug); //슬러그에 해당되는 메타필드 함수 명
+
+            if ($parents_id != 0 && $parents_id) {
+                $parents      = get_term($parents_id)->slug;
+                $functionName = matchSlugFunctionName($parents);
+            }
+
 
             $metafieldNameFunc = '\\Ivy\\Vmeca\\Functions\\getMetafieldName' . $functionName; //메타필드 select 명
 

@@ -12,7 +12,9 @@ use function Ivy\Vmeca\Functions\getMetafieldNameSuctionCup;
 use function Ivy\Vmeca\Functions\getMetafieldSuctionCup;
 use function Ivy\Vmeca\Functions\getParentCategory;
 use function Ivy\Vmeca\Functions\getVmecaProductType;
-use function Ivy\Vmeca\Functions\matchSlugFunctionName; //action or filter or shortcode 등을 자동호출해줌
+use function Ivy\Vmeca\Functions\matchSlugFunctionName;
+
+//action or filter or shortcode 등을 자동호출해줌
 
 /**
  * 관리자 상품 훅 관련 클래스
@@ -281,7 +283,6 @@ class AdminItemInitiator extends AutoHookInitiator
         $tab         = (isset($_GET['tab'])) ? $_GET['tab'] : 'suctionCup';
         $optionField = call_user_func('\\Ivy\\Vmeca\\Functions\\' . 'getMetafieldName' . $tab);
         ?>
-      <h1><?= _e('Setting options value', 'vmeca') ?></h1><!-- 옵션 값 설정 -->
       <div class="wrap columns-2 seed-csp4">
         <h2 class="nav-tab-wrapper" style="padding-left:20px">
             <?php
@@ -292,6 +293,7 @@ class AdminItemInitiator extends AutoHookInitiator
         </h2>
         <div id="poststuff">
           <div id="post-body" class="metabox-holder">
+            <h1><?= $tab; ?></h1>
             <form method="post" novalidate="novalidate">
               <div id="vmeca_option_setting" style="display: block;">
                 <input type="hidden" name="option_page" value="vmeca_option"/>
