@@ -3,7 +3,9 @@
 namespace Ivy\Vmeca\Initiators\Admin;
 
 use Ivy\Mu\Initiators\AutoHookInitiator;
+use function Ivy\Mu\Functions\enqueueScript;
 use function Ivy\Mu\Functions\genericTag;
+use function Ivy\Mu\Functions\getJSUrl;
 use function Ivy\Mu\Functions\selectTag;
 use function Ivy\Vmeca\Functions\getAllCategoryTermId;
 use function Ivy\Vmeca\Functions\getAlpha;
@@ -40,153 +42,69 @@ class AdminItemInitiator extends AutoHookInitiator
         $postId   = get_the_ID();
         $category = getCategorySuctionCup(); //suction cup 카테고리 배열
 
-        $nonceMdCategory  = wp_create_nonce('create_select_category_3');
-        $nonceMdMetaField = wp_create_nonce('create_meta_field');
-
         $categoryParent1     = array();
-        $categoryParent1[''] = __('최상위 카테고리 선택', 'vmeca');
+        $categoryParent1[''] = '최상위 카테고리 선택';
         foreach (getAllCategoryTermId('', '0') as $key => $value) :
             $categoryParent1[$value] = $key;
         endforeach;
 
-        $choiceSelect  = wp_get_post_terms($postId, 'product_cat');
-        $choiceSelect3 = $choiceSelect[2]->term_id;
-        $choiceSelect2 = $choiceSelect[1]->term_id;
-        $choiceSelect1 = $choiceSelect[0]->term_id;
+        $choiceSelect = wp_get_post_terms($postId, 'product_cat');
 
         $select_1 = selectTag(
             $categoryParent1,
-            $choiceSelect1,
-            array('id' => 'category_parent_1', 'name' => 'category_parent_1', 'style' => 'width:200px; float:left;'),
+            $choiceSelect[0]->term_id,
+            array(
+                'id'    => 'category_parent_1',
+                'name'  => 'category_parent_1',
+                'style' => 'width:200px; float:left;',
+            ),
             array(),
             true //echo
         );
 
         $select_2 = selectTag(
             array('' => __('Select Parent Category', 'vmeca')), //상위 카테고리 선택
-            $choiceSelect2,
-            array('id' => 'category_parent_2', 'name' => 'category_parent_2', 'style' => 'width:200px; float:left; margin-left:1%;'),
+            $choiceSelect[1]->term_id,
+            array(
+                'id'    => 'category_parent_2',
+                'name'  => 'category_parent_2',
+                'style' => 'width:200px; float:left; margin-left:1%;',
+            ),
             array(),
             true //echo
         );
 
         $select_3 = selectTag(
-            array('' => __('Select Product Line', 'vmeca')), //'제품군 선택'
-            $choiceSelect3,
-            array('id' => 'category_parent_3', 'name' => 'category_parent_3', 'style' => 'width:200px; float:left; margin-left:1%;'),
+            array('' => __('Select Product Line', 'vmeca')), //제품군 선택'
+            $choiceSelect[2]->term_id,
+            array(
+                'id'    => 'category_parent_3',
+                'name'  => 'category_parent_3',
+                'style' => 'width:200px; float:left; margin-left:1%;',
+            ),
             array(),
             true //echo
         );
 
         echo '<br/><br/><br/><div id="custom_meta_field"></div>';
 
-        ?>
-      <script type="text/javascript">
-          jQuery(document).ready(function ($) {
-              var select_1 = "<?= $choiceSelect1?>";
-              var select_2 = "<?= $choiceSelect2?>";
-              var select_3 = "<?= $choiceSelect3?>";
-
-              md_meta_field($("#category_parent_1").val(), 'custom_meta_field');
-              md_category($('#category_parent_1').val(), 'category_parent_2', "<?php _e('Select Parent Category', 'vmeca')?>");
-              md_category($('#category_parent_2').val(), 'category_parent_3', "<?php _e('Select Product Line', 'vmeca');?>");
-
-              if (select_2 != '') {
-                  md_category(select_1, 'category_parent_2', "<?php _e('Select Parent Category', 'vmeca')?>", select_2);
-              }
-              if (select_3 != '') {
-                  md_category(select_2, 'category_parent_3', "<?php _e('Select Product Line', 'vmeca');?>", select_3); //3번째 셀렉트 박스 만드는 함수 호출
-              }
-
-              $("#category_parent_1").change(function () {
-                  $("#category_parent_3").val('').prop('selected', true);
-                  md_category($(this).val(), 'category_parent_2', "<?php _e('Select Parent Category', 'vmeca')?>"); //2번째 셀렉트 박스 만드는 함수 호출
-                  md_meta_field($(this).val(), 'custom_meta_field');
-              }); //change event
-
-              $("#category_parent_2").change(function () {
-                  md_category($(this).val(), 'category_parent_3', "<?php _e('Select Product Line', 'vmeca');?>"); //3번째 셀렉트 박스 만드는 함수 호출
-              });
-
-              /**
-               * 셀렉트 박스 만드는 함수
-               * [int]term_id : 상위 카테고리 아이디
-               * [string]obj_id : 카테고리 select box id
-               * [string]first_sel_text : select box default option value
-               * [int]selected_data : select box selected value
-               */
-              function md_category(term_id, obj_id, first_sel_text, selected_data) {
-                  var nonce = "<?=$nonceMdCategory?>";
-
-                  if (term_id != '') {
-                      $.ajax({
-                          type: "POST",
-                          dataType: "json", //배열형태로 받아오기  //default : text
-                          url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                          data: {
-                              'action': 'get_list_category',
-                              'term_id': term_id,
-                              'nonce': nonce
-                          },
-                          success: function (response) {
-                              var obj = document.getElementById(obj_id);
-                              obj.innerHTML = '';
-                              var html = '';
-
-                              html += '<option value="">' + first_sel_text + '</option>'
-                              $.each(response, function (i, item) {
-                                  html += '<option value="' + item.term_id + '">' + item.name + '</option>';
-                              });
-                              obj.innerHTML = html;
-                              $("#" + obj_id).css('display', 'block');
-
-                              if (selected_data != '') {
-                                  $("#" + obj_id).val(selected_data).prop('selected', true);
-                              }
-                          },
-                          error: function (r) {
-                              alert(JSON.stringify(r));
-                              alert("Failed");
-                          }
-                      });//end call ajax
-                  }//end if
-              } //end function md_category
-
-              /**
-               * 상위 카테고리에 해당되는 상품 메타 필드 리턴 함수
-               * [int]term_id : 상위 카테고리 아이디
-               * [String]obj_id : 메타 필드가 리턴될 div id
-               */
-              function md_meta_field(term_id, obj_id) {
-                  var nonce = "<?=$nonceMdMetaField?>";
-                  var post_id = "<?=$postId?>";
-
-                  if (term_id != '') {
-                      $.ajax({
-                          type: "POST",
-                          dataType: "html", //html 형태로 받아오기  //default : text
-                          url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                          data: {
-                              'action': 'get_custom_field',
-                              'term_id': term_id,
-                              'post_id': post_id,
-                              'nonce': nonce
-                          },
-                          success: function (response) {
-                              $("#custom_meta_field").html(response);
-                              $("#custom_meta_field").css('display', 'block');
-                          },
-                          error: function (r) {
-                              alert(JSON.stringify(r));
-                              alert("Failed");
-                          }
-                      });//end call ajax
-                  }
-              } //end function md_meta_field
-
-          });
-      </script>
-        <?php
+        enqueueScript(
+            'main',
+            getJSUrl($this->getLauncher(), 'main.js'),
+            array('jquery'),
+            $this->getLauncher()->getVersion(),
+            true,
+            'main',
+            array(
+                'ajaxUrl'        => admin_url('admin-ajax.php'),
+                'categoryNonce'  => wp_create_nonce('create_select_category_3'),
+                'metaFieldNonce' => wp_create_nonce('create_meta_field'),
+                'postId'         => get_the_ID(),
+                'choiceSelect1'  => $choiceSelect[0]->term_id,
+                'choiceSelect2'  => $choiceSelect[1]->term_id,
+                'choiceSelect3'  => $choiceSelect[2]->term_id,
+            )
+        );
     } //end function showProductCategoryOptionField
 
     /**
@@ -247,7 +165,13 @@ class AdminItemInitiator extends AutoHookInitiator
             $select = selectTag(
                 $shapeOptions, // array($key => $value,,)
                 $shapeSelect,
-                array('id' => 'category_cup_shape', 'name' => 'category_cup_shape[]', 'multiple' => "multiple", 'class' => 'category_cup_shape', 'style' => 'width:200px;'),
+                array(
+                    'id'       => 'category_cup_shape',
+                    'name'     => 'category_cup_shape[]',
+                    'multiple' => 'multiple',
+                    'class'    => 'category_cup_shape',
+                    'style'    => 'width:200px;',
+                ),
                 array(),
                 true //echo
             );
@@ -288,7 +212,7 @@ class AdminItemInitiator extends AutoHookInitiator
             <?php
             foreach (getVmecaProductType() as $key => $value) : ?>
               <a class="nav-tab <?php echo($tab == $key ? 'nav-tab-active' : ''); ?>"
-                 href="?post_type=product&page=vmeca_option&amp;tab=<?= $key ?>"><?= _e($value . ' setting', 'vmeca') ?></a>
+                 href="?post_type=product&page=vmeca_option&amp;tab=<?= $key ?>"><?= esc_attr($value . ' setting', 'vmeca') ?></a>
             <?php endforeach; ?>
         </h2>
         <div id="poststuff">
@@ -301,7 +225,7 @@ class AdminItemInitiator extends AutoHookInitiator
                 <input type="hidden" name="tab" value="<?= $tab ?>"/>
                   <?php wp_nonce_field('vmeca-option-setting'); ?>
                 <div class="postbox seedprod-postbox">
-                  <h3 class="hndle"><?= _e('설정 - 각 항목에 띄어쓰기 없이 ,로 구분하여 값을 입력하시길 바랍니다.', 'vmeca') ?></h3>
+                  <h3 class="hndle"><?= esc_attr('설정 - 각 항목에 띄어쓰기 없이 ,로 구분하여 값을 입력하시길 바랍니다.', 'vmeca') ?></h3>
                   <div class="inside">
                     <table class="form-table">
                       <tbody>

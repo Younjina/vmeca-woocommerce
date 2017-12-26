@@ -219,7 +219,11 @@ function matchTermIdFunctionName($termId = '')
  */
 function matchSlugFunctionName($slug = '')
 {
-    $slug_ary    = array('suction-cup' => 'suctionCup', 'vacuum-pump' => 'vacuumPump', 'v-grip-system' => 'vGripSystem');
+    $slug_ary    = array(
+        'suction-cup'   => 'suctionCup',
+        'vacuum-pump'   => 'vacuumPump',
+        'v-grip-system' => 'vGripSystem',
+    );
     $result_name = '';
     foreach ($slug_ary as $key => $value) {
         if (strpos($slug, $key) !== false) {
