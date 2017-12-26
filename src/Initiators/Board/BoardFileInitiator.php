@@ -6,7 +6,9 @@ use Ivy\Mu\Initiators\AutoHookInitiator;
 use function Ivy\Mu\Functions\selectTag;
 use function Ivy\Vmeca\Functions\getAllCategoryTermId;
 use function Ivy\Vmeca\Functions\getFileCategory;
-use function Ivy\Vmeca\Functions\pagination; //action or filter or shortcode 등을 자동호출해줌
+use function Ivy\Vmeca\Functions\pagination;
+
+//action or filter or shortcode 등을 자동호출해줌
 
 
 /**
@@ -66,7 +68,7 @@ class BoardFileInitiator extends AutoHookInitiator
 
         $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
         $page  = ($paged - 1) * 15;
-        $query = " SELECT p.ID
+        $query = "SELECT p.ID
 						FROM {$wpdb->posts} p
 						{$inner}
 						{$left}

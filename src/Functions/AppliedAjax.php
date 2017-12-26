@@ -12,6 +12,8 @@ function searchRelatedProduct()
     }
 
     global $wpdb;
+    global $where;
+    global $order;
 
     $result_html = '';
 
@@ -27,6 +29,7 @@ function searchRelatedProduct()
 						AND (({$wpdb->posts}.post_status = 'publish')) 
 					GROUP BY {$wpdb->posts}.ID 
 					ORDER BY $order {$wpdb->posts}.post_date DESC "; //상품 관련 파일 찾는 쿼리
+
 
     $rows = $wpdb->get_results($wpdb->prepare($query, $value), ARRAY_A);
 

@@ -103,6 +103,7 @@ class AdminItemInitiator extends AutoHookInitiator
                 'choiceSelect1'  => $choiceSelect[0]->term_id,
                 'choiceSelect2'  => $choiceSelect[1]->term_id,
                 'choiceSelect3'  => $choiceSelect[2]->term_id,
+
             )
         );
     } //end function showProductCategoryOptionField
@@ -263,7 +264,7 @@ class AdminItemInitiator extends AutoHookInitiator
       <div>
         <form method="POST" enctype="multipart/form-data">
           <input type="file" name="excelFile" value=""><br/>
-          <input type="submit" value="<?= _e('Upload Excel File', 'vmeca') ?>"/>
+          <input type="submit" value="<?= esc_attr('Upload Excel File', 'vmeca') ?>"/>
         </form>
       </div>
         <?php

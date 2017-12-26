@@ -3,9 +3,12 @@
 namespace Ivy\Vmeca\Initiators\Board;
 
 use Ivy\Mu\Initiators\AutoHookInitiator;
+use function Ivy\Mu\Functions\enqueueScript;
+use function Ivy\Mu\Functions\getJSUrl;
 use function Ivy\Mu\Functions\selectTag;
 use function Ivy\Vmeca\Functions\getMetafieldSuctionCup;
 use function Ivy\Vmeca\Functions\matchSlugFunctionName;
+use function Ivy\Vmeca\Functions\mmToinch;
 
 //action or filter or shortcode 등을 자동호출해줌
 
@@ -106,7 +109,7 @@ class BoardProductInitiator extends AutoHookInitiator
                   }
                   if (strpos($optionValue, 'mm') || $key == 'cup_diameter') {
                       $optionValue = explode('x', $optionValue);
-                      $optionValue = array_map('\\Ivy\\Vmeca\\Functions\\mmToinch', $optionValue);
+                      $optionValue = array_map(mmToinch(), $optionValue);
                       $optionValue = implode('x', $optionValue) . $mm;
                   }
 
@@ -136,29 +139,16 @@ class BoardProductInitiator extends AutoHookInitiator
           </tbody>
         </table>
       </form>
-      <script type="text/javascript">
-          jQuery(document).ready(function ($) {
-              $(".parameter-value").change(function () {
-                  var form_action = '';
-                  $(".parameter-value").each(function (i, item) {
-                      var id = item.id;
-                      var val = $('#' + id).val();
-
-                      if (val != '') {
-                          $(this).attr('name', id);
-                      }
-                  });
-
-                  $("#product_list").submit();
-              });
-
-              $("#reset").click(function () {
-                  $(".parameter-value").val('');
-                  $("#product_list").submit();
-              }); //reset button click
-          });
-      </script>
         <?php
+        enqueueScript(
+            'clientProduct',
+            getJSUrl($this->getLauncher(), 'clientProduct.js'),
+            array('jquery'),
+            $this->getLauncher()->getVersion(),
+            true,
+            'clientProduct',
+            array()
+        );
     } //end funciton action_vmeca_suction_cup_filter
 
     public function action_pre_get_posts($query)
